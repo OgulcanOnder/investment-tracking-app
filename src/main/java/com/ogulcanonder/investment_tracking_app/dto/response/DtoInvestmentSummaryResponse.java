@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 @Builder
 public record DtoInvestmentSummaryResponse(
+        Long id,
         Long instrumentsId,
         String instrumentsName,
         String imageUrl,

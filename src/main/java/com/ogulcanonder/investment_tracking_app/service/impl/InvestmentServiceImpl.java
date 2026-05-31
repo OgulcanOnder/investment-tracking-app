@@ -49,6 +49,7 @@ public class InvestmentServiceImpl implements InvestmentService {
     @Override
     public DtoInvestmentSummaryResponse buildSummary(List<Investment> investments) {
         Instruments instruments = investments.get(0).getInstruments();
+        Investment investment = investments.get(0);
 
         BigDecimal totalQuantity = investments.stream().map(Investment::getQuantity)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -65,7 +66,7 @@ public class InvestmentServiceImpl implements InvestmentService {
         }).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalValue = totalQuantity.multiply(currentPrice);
 
-        return new DtoInvestmentSummaryResponse(instruments.getId(), instruments.getName(),
+        return new DtoInvestmentSummaryResponse(investment.getId(), instruments.getId(), instruments.getName(),
                 instruments.getImageUrl(), instruments.getType(),
                 totalQuantity.setScale(2, RoundingMode.HALF_UP),
                 averageCost.setScale(2, RoundingMode.HALF_UP),

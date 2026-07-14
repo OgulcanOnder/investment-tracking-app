@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/investment/v1")
+@RequestMapping("/api/v1/investment")
 @RequiredArgsConstructor
 public class InvestmentController {
     private final InvestmentService investmentService;

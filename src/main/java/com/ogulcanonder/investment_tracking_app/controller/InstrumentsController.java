@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/instruments/v1")
+@RequestMapping("/api/v1/instruments")
 @RequiredArgsConstructor
 public class InstrumentsController {
     private final InstrumentsService instrumentsService;

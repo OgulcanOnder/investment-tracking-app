@@ -36,11 +36,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .authorities(Set.of(Role.ROLE_USER))
                 .build();
         userRepository.save(user);
-        return new DtoUserResponse(user.getName(),user.getSurname(),user.getUsername(),user.getEmail(),
-                user.isAccountNonExpired(),user.isAccountNonLocked(),user.isCredentialsNonExpired(),user.isEnabled(),
+        return new DtoUserResponse(user.getName(), user.getSurname(), user.getUsername(), user.getEmail(),
+                user.isAccountNonExpired(), user.isAccountNonLocked(), user.isCredentialsNonExpired(), user.isEnabled(),
                 user.getAuthorities());
     }
-
 
 
 }

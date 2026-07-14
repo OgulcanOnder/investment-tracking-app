@@ -20,7 +20,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/investment").authenticated()
                 .requestMatchers("/api/v1/instruments").permitAll()
                 .requestMatchers("/api/v1/auth/register").permitAll());
-        http.sessionManagement(sessionManagement ->sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement(sessionManagement -> sessionManagement.
+                sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
 

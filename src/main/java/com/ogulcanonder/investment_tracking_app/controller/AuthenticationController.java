@@ -21,7 +21,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<DtoUserResponse>register(@Valid @RequestBody DtoRegisterUserRequest dtoRegisterUserRequest){
+    public ResponseEntity<DtoUserResponse> register(@Valid @RequestBody DtoRegisterUserRequest dtoRegisterUserRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(authenticationService.register(dtoRegisterUserRequest));
     }
 }

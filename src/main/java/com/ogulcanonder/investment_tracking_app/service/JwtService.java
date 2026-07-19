@@ -25,4 +25,6 @@ public interface JwtService {
     public void saveRefreshToken(String email, String refreshToken, long expireTime);
 
     public void deleteRefreshToken(String token);
+
+    public void revokeRefreshToken(String email);
 }

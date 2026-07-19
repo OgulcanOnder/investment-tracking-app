@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface UserService {
     public Optional<User> findByEmail(String email);
+    public void resetPassword(User user, String newPassword);
 }

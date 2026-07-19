@@ -120,4 +120,9 @@ public class JwtServiceImpl implements JwtService {
             throw new BadCredentialsException("Invalid refresh token");
         }
     }
+
+    @Override
+    public void revokeRefreshToken(String email) {
+        refreshTokenRepository.deleteRefreshTokenByEmail(email);
+    }
 }

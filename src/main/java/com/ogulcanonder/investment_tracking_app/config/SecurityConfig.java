@@ -37,6 +37,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
                 .requestMatchers("/api/v1/investment/**").authenticated()
                 .requestMatchers("/api/v1/auth/logout").authenticated()
+                .requestMatchers("/api/v1/auth/forgot-password").permitAll()
+                .requestMatchers("/api/v1/auth/reset-password").permitAll()
                 .requestMatchers("/api/v1/instruments").permitAll()
                 .requestMatchers("/api/v1/auth/register").permitAll()
                 .requestMatchers("/api/v1/auth/login").permitAll()

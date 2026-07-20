@@ -4,16 +4,22 @@ import com.ogulcanonder.investment_tracking_app.dto.request.DtoForgotPasswordReq
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoLoginRequest;
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoRegisterUserRequest;
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoResetPasswordRequest;
+import com.ogulcanonder.investment_tracking_app.dto.request.DtoUpdatePasswordRequest;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoAuthLoginResponse;
+import com.ogulcanonder.investment_tracking_app.dto.response.DtoRefreshTokenResponse;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoUserResponse;
 import com.ogulcanonder.investment_tracking_app.service.AuthenticationService;
 import com.ogulcanonder.investment_tracking_app.service.PasswordResetTokenService;
+import com.ogulcanonder.investment_tracking_app.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
@@ -22,11 +28,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final PasswordResetTokenService passwordResetTokenService;
+    private final UserService userService;
 
     public AuthenticationController(AuthenticationService authenticationService,
-                                    PasswordResetTokenService passwordResetTokenService) {
+                                    PasswordResetTokenService passwordResetTokenService, UserService userService) {
         this.authenticationService = authenticationService;
         this.passwordResetTokenService = passwordResetTokenService;
+        this.userService = userService;
     }
 
     @PostMapping("/register")
@@ -40,8 +48,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    public String refreshToken(@RequestHeader("Authorization") String authHeader) {
-        return authenticationService.refreshToken(authHeader);
+    public ResponseEntity<DtoRefreshTokenResponse> refreshToken(@RequestHeader("Authorization") String authHeader) {
+        return ResponseEntity.status(HttpStatus.OK).body(authenticationService.refreshToken(authHeader));
     }
 
     @PostMapping("/logout")
@@ -60,5 +68,12 @@ public class AuthenticationController {
     public ResponseEntity<String> resetPassword(@Valid @RequestBody DtoResetPasswordRequest dtoResetPasswordRequest) {
         passwordResetTokenService.resetPassword(dtoResetPasswordRequest);
         return ResponseEntity.status(HttpStatus.OK).body("Reset Password Successful");
+    }
+
+    @PutMapping("/update-password")
+    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody DtoUpdatePasswordRequest dtoUpdatePasswordRequest) {
+        userService.updatePassword(userDetails.getUsername(), dtoUpdatePasswordRequest);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

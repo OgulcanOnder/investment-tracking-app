@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface JwtService {
 
-    public String generateAccessToken(String email);
+    public String generateAccessToken(UserDetails userDetails);
 
     public Claims extractAllClaims(String token);
 
@@ -18,7 +18,7 @@ public interface JwtService {
 
     public String createToken(Map<String, Object> claims, String email, long expireTime);
 
-    public String generateRefreshToken(String email);
+    public String generateRefreshToken(UserDetails userDetails);
 
     public String getRefreshToken(String email);
 

@@ -1,9 +1,9 @@
 package com.ogulcanonder.investment_tracking_app.service.impl;
 
 import com.ogulcanonder.investment_tracking_app.entity.RefreshToken;
+import com.ogulcanonder.investment_tracking_app.entity.User;
 import com.ogulcanonder.investment_tracking_app.repository.RefreshTokenRepository;
 import com.ogulcanonder.investment_tracking_app.service.JwtService;
-import com.ogulcanonder.investment_tracking_app.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -11,7 +11,6 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,23 +30,18 @@ public class JwtServiceImpl implements JwtService {
     private static final long ACCESS_TOKEN_VALIDITY_SECONDS = 900000L;
     private static final long REFRESH_TOKEN_VALIDITY_SECONDS = 604800000L;
 
-    private final UserDetailsServiceImpl userDetailsService;
-    private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public JwtServiceImpl(UserDetailsServiceImpl userDetailsService, UserService userService,
-                          RefreshTokenRepository refreshTokenRepository) {
-        this.userDetailsService = userDetailsService;
-        this.userService = userService;
+    public JwtServiceImpl(RefreshTokenRepository refreshTokenRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
     @Override
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userService.findByEmail(email).get().getId());
-        claims.put("roles", userDetailsService.loadUserByUsername(email).getAuthorities());
-        return createToken(claims, email, ACCESS_TOKEN_VALIDITY_SECONDS);
+        claims.put("userId", ((User) userDetails).getId());
+        claims.put("roles", userDetails.getAuthorities());
+        return createToken(claims, userDetails.getUsername(), ACCESS_TOKEN_VALIDITY_SECONDS);
     }
 
     @Override
@@ -84,23 +78,24 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateRefreshToken(String email) {
+    public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userService.findByEmail(email).get().getId());
-        claims.put("roles", userDetailsService.loadUserByUsername(email).getAuthorities());
-        String refreshToken = createToken(claims, email, REFRESH_TOKEN_VALIDITY_SECONDS);
-        saveRefreshToken(email, refreshToken, REFRESH_TOKEN_VALIDITY_SECONDS);
+        claims.put("userId", ((User) userDetails).getId());
+        claims.put("roles", userDetails.getAuthorities());
+        String refreshToken = createToken(claims, userDetails.getUsername(), REFRESH_TOKEN_VALIDITY_SECONDS);
+        saveRefreshToken(userDetails.getUsername(), refreshToken, REFRESH_TOKEN_VALIDITY_SECONDS);
         return refreshToken;
     }
 
     @Override
     public String getRefreshToken(String email) {
         RefreshToken refreshToken = refreshTokenRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Refresh token not found"));
+                .orElseThrow(() -> new RuntimeException("Refresh token not found"));
         return refreshToken.getRefreshToken();
     }
 
     @Override
+    @Transactional
     public void saveRefreshToken(String email, String refreshToken, long expireTime) {
         RefreshToken saveRefreshToken = refreshTokenRepository.findByEmail(email)
                 .orElseGet(RefreshToken::new);

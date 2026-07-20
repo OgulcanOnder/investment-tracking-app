@@ -26,7 +26,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
     private final UserDetailsServiceImpl userDetailsService;
-    private static final int AUTHHEADER_SIZE = 7;
+    private static final int AUTH_HEADER_SIZE = 7;
 
     public JwtAuthFilter(JwtService jwtService, UserDetailsServiceImpl userDetailsService) {
         this.jwtService = jwtService;
@@ -40,7 +40,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = null;
         String email = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(AUTHHEADER_SIZE);
+            token = authHeader.substring(AUTH_HEADER_SIZE);
             try {
                 email = jwtService.extractAllClaims(token).getSubject();
             } catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException |

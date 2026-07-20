@@ -1,9 +1,9 @@
 package com.ogulcanonder.investment_tracking_app.service.impl;
 
-import com.ogulcanonder.investment_tracking_app.config.PasswordEncoderConfig;
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoLoginRequest;
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoRegisterUserRequest;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoAuthLoginResponse;
+import com.ogulcanonder.investment_tracking_app.dto.response.DtoRefreshTokenResponse;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoUserResponse;
 import com.ogulcanonder.investment_tracking_app.entity.User;
 import com.ogulcanonder.investment_tracking_app.repository.UserRepository;
@@ -16,27 +16,33 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
-    private final PasswordEncoderConfig passwordEncoderConfig;
+    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsServiceImpl userDetailsService;
     private final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
-    private static final int AUTHHEADER_SIZE = 7;
+    private static final int AUTH_HEADER_SIZE = 7;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoderConfig passwordEncoderConfig,
-                                     JwtService jwtService, AuthenticationManager authenticationManager) {
+    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                                     JwtService jwtService, AuthenticationManager authenticationManager,
+                                     UserDetailsServiceImpl userDetailsService) {
         this.userRepository = userRepository;
-        this.passwordEncoderConfig = passwordEncoderConfig;
+        this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
     }
 
     @Transactional
@@ -47,7 +53,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .surname(dtoRegisterUserRequest.surname())
                 .username(dtoRegisterUserRequest.username())
                 .email(dtoRegisterUserRequest.email())
-                .password(passwordEncoderConfig.passwordEncoder().encode(dtoRegisterUserRequest.password()))
+                .password(passwordEncoder.encode(dtoRegisterUserRequest.password()))
                 .isAccountNonExpired(true)
                 .isAccountNonLocked(true)
                 .isCredentialsNonExpired(true)
@@ -66,28 +72,34 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 dtoLoginRequest.email(), dtoLoginRequest.password()));
         if (authentication.isAuthenticated()) {
-            String accessToken = jwtService.generateAccessToken(dtoLoginRequest.email());
-            String refreshToken = jwtService.generateRefreshToken(dtoLoginRequest.email());
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String accessToken = jwtService.generateAccessToken(userDetails);
+            String refreshToken = jwtService.generateRefreshToken(userDetails);
             return new DtoAuthLoginResponse(accessToken, refreshToken);
         }
         logger.error("Invalid email or password");
         throw new BadCredentialsException("Invalid email or password");
     }
 
-    public String refreshToken(String refreshToken) {
-        String token = refreshToken.substring(AUTHHEADER_SIZE);
+    @Override
+    @Transactional
+    public DtoRefreshTokenResponse refreshToken(String refreshToken) {
+        String token = refreshToken.substring(AUTH_HEADER_SIZE);
         String email = jwtService.extractAllClaims(token).getSubject();
         String storedToken = jwtService.getRefreshToken(email);
-        if (storedToken.equals(token)) {
-            return jwtService.generateAccessToken(email);
+        if (!Objects.equals(storedToken, token)) {
+            throw new RuntimeException("Invalid refresh token");
         }
-        throw new RuntimeException("Invalid refresh token");
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        String newAccessToken = jwtService.generateAccessToken(userDetails);
+        String newRefreshToken = jwtService.generateRefreshToken(userDetails);
+        return new DtoRefreshTokenResponse(newAccessToken, newRefreshToken);
     }
 
     @Override
     @Transactional
     public String logout(String authHeader) {
-        String token = authHeader.substring(AUTHHEADER_SIZE);
+        String token = authHeader.substring(AUTH_HEADER_SIZE);
         jwtService.deleteRefreshToken(token);
         return "Logged out";
     }

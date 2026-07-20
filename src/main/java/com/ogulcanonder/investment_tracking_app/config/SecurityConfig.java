@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -19,13 +20,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
-    private final PasswordEncoderConfig passwordEncoderConfig;
+    private final PasswordEncoder passwordEncoder;
     private final JwtAuthFilter jwtAuthFilter;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService, PasswordEncoderConfig passwordEncoderConfig,
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder,
                           JwtAuthFilter jwtAuthFilter) {
         this.userDetailsService = userDetailsService;
-        this.passwordEncoderConfig = passwordEncoderConfig;
+        this.passwordEncoder = passwordEncoder;
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
@@ -37,6 +38,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
                 .requestMatchers("/api/v1/investment/**").authenticated()
                 .requestMatchers("/api/v1/auth/logout").authenticated()
+                .requestMatchers("/api/v1/auth/update-password").authenticated()
                 .requestMatchers("/api/v1/auth/forgot-password").permitAll()
                 .requestMatchers("/api/v1/auth/reset-password").permitAll()
                 .requestMatchers("/api/v1/instruments").permitAll()
@@ -58,7 +60,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoderConfig.passwordEncoder());
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return daoAuthenticationProvider;
     }
 

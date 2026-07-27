@@ -6,5 +6,6 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record DtoInvestmentResponse(Long id, BigDecimal quantity, BigDecimal buyPrice, Instruments instruments) {
+public record DtoInvestmentResponse(Long id, Long userId, BigDecimal quantity, BigDecimal buyPrice,
+                                    Instruments instruments) {
 }

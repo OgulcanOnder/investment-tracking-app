@@ -12,10 +12,12 @@ import com.ogulcanonder.investment_tracking_app.service.AuthenticationService;
 import com.ogulcanonder.investment_tracking_app.service.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -104,5 +106,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return "Logged out";
     }
 
+    @Override
+    public Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
+            throw new AuthenticationCredentialsNotFoundException("User is not authenticated");
+        }
+        return user.getId();
+    }
+
+    @Override
+    public User getCurrentUser() {
+        return userRepository.getReferenceById(getCurrentUserId());
+    }
 
 }

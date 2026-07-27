@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
@@ -21,4 +22,5 @@ public interface InvestmentRepository extends JpaRepository<Investment, Long> {
     @Query("DELETE FROM Investment i WHERE i.id=:id")
     int deleteInvestmentSummary(Long id);
 
+    List<Investment>findAllByUserId(Long id);
 }

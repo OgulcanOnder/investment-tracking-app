@@ -7,6 +7,7 @@ import com.ogulcanonder.investment_tracking_app.entity.Instruments;
 import com.ogulcanonder.investment_tracking_app.entity.Investment;
 import com.ogulcanonder.investment_tracking_app.mapper.InvestmentMapper;
 import com.ogulcanonder.investment_tracking_app.repository.InvestmentRepository;
+import com.ogulcanonder.investment_tracking_app.service.AuthenticationService;
 import com.ogulcanonder.investment_tracking_app.service.InstrumentsService;
 import com.ogulcanonder.investment_tracking_app.service.InvestmentService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class InvestmentServiceImpl implements InvestmentService {
     private final InvestmentRepository investmentRepository;
     private final InvestmentMapper investmentMapper;
     private final InstrumentsService instrumentsService;
+    private final AuthenticationService authenticationService;
 
     private static final int FINANCIAL_CALCULATION_SCALE = 4;
 
@@ -35,13 +37,15 @@ public class InvestmentServiceImpl implements InvestmentService {
         Instruments instruments = instrumentsService.getInstrumentsEntityById(dtoInvestmentRequest.instrumentsId());
         Investment investment = investmentMapper.toEntity(dtoInvestmentRequest, instruments);
         investment.setBuyDate(LocalDateTime.now());
+        investment.setUser(authenticationService.getCurrentUser());
         return investmentMapper.toDto(investmentRepository.save(investment));
     }
 
     @Transactional
     @Override
     public List<DtoInvestmentSummaryResponse> getInvestmentSummary() {
-        return investmentRepository.findAll().stream().collect(Collectors.groupingBy(inv ->
+        Long userId = authenticationService.getCurrentUserId();
+        return investmentRepository.findAllByUserId(userId).stream().collect(Collectors.groupingBy(inv ->
                 inv.getInstruments().getId())).entrySet().stream().map(entry ->
                 buildSummary(entry.getValue())).toList();
     }

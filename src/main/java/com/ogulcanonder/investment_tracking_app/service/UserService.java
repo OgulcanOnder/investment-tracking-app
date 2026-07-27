@@ -11,4 +11,6 @@ public interface UserService {
     public void resetPassword(User user, String newPassword);
 
     public void updatePassword(String email, DtoUpdatePasswordRequest dtoUpdatePasswordRequest);
+
+    public User getUserByEmail(String email);
 }

@@ -5,10 +5,13 @@ import com.ogulcanonder.investment_tracking_app.dto.request.DtoRegisterUserReque
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoAuthLoginResponse;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoRefreshTokenResponse;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoUserResponse;
+import com.ogulcanonder.investment_tracking_app.entity.User;
 
 public interface AuthenticationService {
     public DtoUserResponse register(DtoRegisterUserRequest dtoRegisterUserRequest);
     public DtoAuthLoginResponse login(DtoLoginRequest dtoLoginRequest);
     public DtoRefreshTokenResponse refreshToken(String refreshToken);
     public String logout(String authHeader);
+    public Long getCurrentUserId();
+    public User getCurrentUser();
 }

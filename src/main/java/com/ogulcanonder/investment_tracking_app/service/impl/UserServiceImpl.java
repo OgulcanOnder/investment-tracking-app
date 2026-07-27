@@ -53,7 +53,13 @@ public class UserServiceImpl implements UserService {
         jwtService.revokeRefreshToken(user.getEmail());
     }
 
+
     public boolean updatePasswordMatch(String newPassword, String confirmNewPassword) {
         return newPassword.equals(confirmNewPassword);
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

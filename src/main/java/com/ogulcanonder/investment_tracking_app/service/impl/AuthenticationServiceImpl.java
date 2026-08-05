@@ -90,7 +90,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String email = jwtService.extractAllClaims(token).getSubject();
         String storedToken = jwtService.getRefreshToken(email);
         if (!Objects.equals(storedToken, token)) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new BadCredentialsException("Invalid refresh token");
         }
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         String newAccessToken = jwtService.generateAccessToken(userDetails);

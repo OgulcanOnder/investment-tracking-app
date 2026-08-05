@@ -5,6 +5,7 @@ import com.ogulcanonder.investment_tracking_app.dto.response.DtoInvestmentRespon
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoInvestmentSummaryResponse;
 import com.ogulcanonder.investment_tracking_app.entity.Instruments;
 import com.ogulcanonder.investment_tracking_app.entity.Investment;
+import com.ogulcanonder.investment_tracking_app.exception.ResourceNotFoundException;
 import com.ogulcanonder.investment_tracking_app.mapper.InvestmentMapper;
 import com.ogulcanonder.investment_tracking_app.repository.InvestmentRepository;
 import com.ogulcanonder.investment_tracking_app.service.AuthenticationService;
@@ -92,7 +93,7 @@ public class InvestmentServiceImpl implements InvestmentService {
     public void deleteById(Long id) {
         int deletedRows = investmentRepository.deleteInvestmentSummary(id);
         if (deletedRows == 0) {
-            throw new RuntimeException("Not Found Investment");
+            throw new ResourceNotFoundException("Not Found Investment");
         }
     }
 

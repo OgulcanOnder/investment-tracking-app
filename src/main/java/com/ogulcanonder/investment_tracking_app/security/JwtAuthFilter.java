@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
@@ -27,10 +29,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
     private final UserDetailsServiceImpl userDetailsService;
     private static final int AUTH_HEADER_SIZE = 7;
+    private final HandlerExceptionResolver exceptionResolver;
 
-    public JwtAuthFilter(JwtService jwtService, UserDetailsServiceImpl userDetailsService) {
+    public JwtAuthFilter(JwtService jwtService, UserDetailsServiceImpl userDetailsService,
+                         @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.exceptionResolver = exceptionResolver;
     }
 
     @Override
@@ -46,6 +51,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             } catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException |
                      IllegalArgumentException e) {
                 logger.warn("Invalid or Expired JWT Token: " + e.getMessage());
+                exceptionResolver.resolveException(request, response, null, e);
+                return;
             }
         }
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {

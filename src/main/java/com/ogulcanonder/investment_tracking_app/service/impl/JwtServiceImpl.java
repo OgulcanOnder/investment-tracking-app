@@ -2,6 +2,7 @@ package com.ogulcanonder.investment_tracking_app.service.impl;
 
 import com.ogulcanonder.investment_tracking_app.entity.RefreshToken;
 import com.ogulcanonder.investment_tracking_app.entity.User;
+import com.ogulcanonder.investment_tracking_app.exception.ResourceNotFoundException;
 import com.ogulcanonder.investment_tracking_app.repository.RefreshTokenRepository;
 import com.ogulcanonder.investment_tracking_app.service.JwtService;
 import io.jsonwebtoken.Claims;
@@ -90,7 +91,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String getRefreshToken(String email) {
         RefreshToken refreshToken = refreshTokenRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
         return refreshToken.getRefreshToken();
     }
 

@@ -2,6 +2,8 @@ package com.ogulcanonder.investment_tracking_app.service.impl;
 
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoResetPasswordRequest;
 import com.ogulcanonder.investment_tracking_app.entity.PasswordResetToken;
+import com.ogulcanonder.investment_tracking_app.exception.InvalidPasswordResetTokenException;
+import com.ogulcanonder.investment_tracking_app.exception.PasswordResetTokenExpiredException;
 import com.ogulcanonder.investment_tracking_app.repository.PasswordResetTokenRepository;
 import com.ogulcanonder.investment_tracking_app.service.JwtService;
 import com.ogulcanonder.investment_tracking_app.service.PasswordResetTokenService;
@@ -83,9 +85,9 @@ public class PasswordResetTokenServiceImpl implements PasswordResetTokenService 
     @Transactional
     public void resetPassword(DtoResetPasswordRequest dtoResetPasswordRequest) {
         PasswordResetToken token = passwordResetTokenRepository.findByToken(dtoResetPasswordRequest.token())
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new InvalidPasswordResetTokenException("Invalid password reset token"));
         if (isExpired(token)) {
-            throw new RuntimeException("Token is expired");
+            throw new PasswordResetTokenExpiredException("Token is expired");
         }
         userService.resetPassword(token.getUser(), dtoResetPasswordRequest.newPassword());
         passwordResetTokenRepository.delete(token);

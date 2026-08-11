@@ -8,9 +8,10 @@ import com.ogulcanonder.investment_tracking_app.entity.Investment;
 import com.ogulcanonder.investment_tracking_app.exception.ResourceNotFoundException;
 import com.ogulcanonder.investment_tracking_app.mapper.InvestmentMapper;
 import com.ogulcanonder.investment_tracking_app.repository.InvestmentRepository;
-import com.ogulcanonder.investment_tracking_app.service.AuthenticationService;
 import com.ogulcanonder.investment_tracking_app.service.InstrumentsService;
 import com.ogulcanonder.investment_tracking_app.service.InvestmentService;
+import com.ogulcanonder.investment_tracking_app.service.CurrentUserProvider;
+import com.ogulcanonder.investment_tracking_app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,8 @@ public class InvestmentServiceImpl implements InvestmentService {
     private final InvestmentRepository investmentRepository;
     private final InvestmentMapper investmentMapper;
     private final InstrumentsService instrumentsService;
-    private final AuthenticationService authenticationService;
+    private final CurrentUserProvider currentUserProvider;
+    private final UserService userService;
 
     private static final int FINANCIAL_CALCULATION_SCALE = 4;
 
@@ -38,15 +40,16 @@ public class InvestmentServiceImpl implements InvestmentService {
         Instruments instruments = instrumentsService.getInstrumentsEntityById(dtoInvestmentRequest.instrumentsId());
         Investment investment = investmentMapper.toEntity(dtoInvestmentRequest, instruments);
         investment.setBuyDate(LocalDateTime.now());
-        investment.setUser(authenticationService.getCurrentUser());
+        investment.setUser(userService.getCurrentUser());
         return investmentMapper.toDto(investmentRepository.save(investment));
     }
 
     @Transactional
     @Override
     public List<DtoInvestmentSummaryResponse> getInvestmentSummary() {
-        Long userId = authenticationService.getCurrentUserId();
-        return investmentRepository.findAllByUserId(userId).stream().collect(Collectors.groupingBy(inv ->
+        Long userId = currentUserProvider.getCurrentUserId();
+        return investmentRepository.findByUserIdWithInstruments(userId).stream()
+                .collect(Collectors.groupingBy(inv ->
                 inv.getInstruments().getId())).entrySet().stream().map(entry ->
                 buildSummary(entry.getValue())).toList();
     }

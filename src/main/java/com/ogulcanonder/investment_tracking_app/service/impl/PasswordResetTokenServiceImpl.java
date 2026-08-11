@@ -2,12 +2,13 @@ package com.ogulcanonder.investment_tracking_app.service.impl;
 
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoResetPasswordRequest;
 import com.ogulcanonder.investment_tracking_app.entity.PasswordResetToken;
+import com.ogulcanonder.investment_tracking_app.event.PasswordChangeEvent;
 import com.ogulcanonder.investment_tracking_app.exception.InvalidPasswordResetTokenException;
 import com.ogulcanonder.investment_tracking_app.exception.PasswordResetTokenExpiredException;
 import com.ogulcanonder.investment_tracking_app.repository.PasswordResetTokenRepository;
-import com.ogulcanonder.investment_tracking_app.service.JwtService;
 import com.ogulcanonder.investment_tracking_app.service.PasswordResetTokenService;
 import com.ogulcanonder.investment_tracking_app.service.UserService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -24,21 +25,22 @@ public class PasswordResetTokenServiceImpl implements PasswordResetTokenService 
     private final UserService userService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final JavaMailSender javaMailSender;
-    private final JwtService jwtService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
     private static final int RESET_TOKEN_LENGTH = 32;
     private static final int RESET_TOKEN_VALIDITY_MINUTES = 15;
-    private static final String PASSWORD_RESET_URL = "http://localhost:8080/api/v1/auth/reset-password?token=";
+    private static final String PASSWORD_RESET_URL = "http://localhost:3000/reset-password?token=";
 
     public PasswordResetTokenServiceImpl(UserService userService,
                                          PasswordResetTokenRepository passwordResetTokenRepository,
-                                         JavaMailSender javaMailSender, JwtService jwtService) {
+                                         JavaMailSender javaMailSender,
+                                         ApplicationEventPublisher applicationEventPublisher) {
         this.userService = userService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.javaMailSender = javaMailSender;
-        this.jwtService = jwtService;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
@@ -91,7 +93,7 @@ public class PasswordResetTokenServiceImpl implements PasswordResetTokenService 
         }
         userService.resetPassword(token.getUser(), dtoResetPasswordRequest.newPassword());
         passwordResetTokenRepository.delete(token);
-        jwtService.revokeRefreshToken(token.getUser().getEmail());
+        applicationEventPublisher.publishEvent(new PasswordChangeEvent(token.getUser().getEmail()));
     }
 
 }

@@ -6,18 +6,16 @@ import com.ogulcanonder.investment_tracking_app.dto.response.DtoAuthLoginRespons
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoRefreshTokenResponse;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoUserResponse;
 import com.ogulcanonder.investment_tracking_app.entity.User;
-import com.ogulcanonder.investment_tracking_app.repository.UserRepository;
 import com.ogulcanonder.investment_tracking_app.roles.Role;
 import com.ogulcanonder.investment_tracking_app.service.AuthenticationService;
 import com.ogulcanonder.investment_tracking_app.service.JwtService;
+import com.ogulcanonder.investment_tracking_app.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,7 +27,7 @@ import java.util.Set;
 @Service
 @Transactional(readOnly = true)
 public class AuthenticationServiceImpl implements AuthenticationService {
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -37,10 +35,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
     private static final int AUTH_HEADER_SIZE = 7;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+    public AuthenticationServiceImpl(UserService userService, PasswordEncoder passwordEncoder,
                                      JwtService jwtService, AuthenticationManager authenticationManager,
                                      UserDetailsServiceImpl userDetailsService) {
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
@@ -62,7 +60,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .isEnabled(true)
                 .authorities(Set.of(Role.ROLE_USER))
                 .build();
-        userRepository.save(user);
+        userService.create(user);
         return new DtoUserResponse(user.getName(), user.getSurname(), user.getUsername(), user.getEmail(),
                 user.isAccountNonExpired(), user.isAccountNonLocked(), user.isCredentialsNonExpired(), user.isEnabled(),
                 user.getAuthorities());
@@ -100,24 +98,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     @Transactional
-    public String logout(String authHeader) {
-        String token = authHeader.substring(AUTH_HEADER_SIZE);
-        jwtService.deleteRefreshToken(token);
+    public String logout() {
+        User user = userService.getCurrentUser();
+        jwtService.deleteRefreshToken(user.getEmail());
         return "Logged out";
-    }
-
-    @Override
-    public Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
-            throw new AuthenticationCredentialsNotFoundException("User is not authenticated");
-        }
-        return user.getId();
-    }
-
-    @Override
-    public User getCurrentUser() {
-        return userRepository.getReferenceById(getCurrentUserId());
     }
 
 }

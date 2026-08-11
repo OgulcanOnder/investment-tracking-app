@@ -43,7 +43,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<DtoAuthLoginResponse> login(@RequestBody DtoLoginRequest dtoLoginRequest) {
+    public ResponseEntity<DtoAuthLoginResponse> login(@Valid @RequestBody DtoLoginRequest dtoLoginRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(authenticationService.login(dtoLoginRequest));
     }
 
@@ -53,8 +53,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
-    public String logout(@RequestHeader("Authorization") String authHeader) {
-        return authenticationService.logout(authHeader);
+    public String logout() {
+        return authenticationService.logout();
     }
 
     @PostMapping("/forgot-password")

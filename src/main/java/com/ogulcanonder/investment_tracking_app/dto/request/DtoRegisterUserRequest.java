@@ -22,10 +22,11 @@ public record DtoRegisterUserRequest(
 
         @NotBlank(message = "E-mail cannot be blank")
         @Email(message = "Enter a valid e-mail address")
+        @Size(min = 5, max = 254, message = "Email must be 5-254 characters long")
         String email,
 
         @NotBlank(message = "Password cannot be blank")
-        @Size(min = 8, message = "Password must be least 8 characters long")
+        @Size(min = 8, max = 255, message = "Password must be least 8 characters long")
         @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!*]).*$",
                 message = "Password must contain at least one digit, lowercase, uppercase, and special character")
         String password

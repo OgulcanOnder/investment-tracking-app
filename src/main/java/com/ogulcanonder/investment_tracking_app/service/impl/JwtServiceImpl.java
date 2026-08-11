@@ -10,7 +10,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +40,7 @@ public class JwtServiceImpl implements JwtService {
     public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", ((User) userDetails).getId());
+        claims.put("username", ((User) userDetails).getRealUsername());
         claims.put("roles", userDetails.getAuthorities());
         return createToken(claims, userDetails.getUsername(), ACCESS_TOKEN_VALIDITY_SECONDS);
     }
@@ -109,12 +109,8 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     @Transactional
-    public void deleteRefreshToken(String token) {
-        String email = extractAllClaims(token).getSubject();
-        int deletedRow = refreshTokenRepository.deleteRefreshTokenByEmail(email);
-        if (deletedRow == 0) {
-            throw new BadCredentialsException("Invalid refresh token");
-        }
+    public void deleteRefreshToken(String email) {
+        refreshTokenRepository.deleteRefreshTokenByEmail(email);
     }
 
     @Override

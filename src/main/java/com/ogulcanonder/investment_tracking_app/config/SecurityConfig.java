@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/investment/**").authenticated()
                 .requestMatchers("/api/v1/auth/logout").authenticated()
                 .requestMatchers("/api/v1/auth/update-password").authenticated()
+                .requestMatchers("/api/v1/auth/profile").authenticated()
                 .requestMatchers("/api/v1/auth/forgot-password").permitAll()
                 .requestMatchers("/api/v1/auth/reset-password").permitAll()
                 .requestMatchers("/api/v1/instruments").permitAll()

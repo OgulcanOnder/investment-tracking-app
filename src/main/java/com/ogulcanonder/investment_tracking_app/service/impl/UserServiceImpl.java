@@ -1,10 +1,12 @@
 package com.ogulcanonder.investment_tracking_app.service.impl;
 
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoUpdatePasswordRequest;
+import com.ogulcanonder.investment_tracking_app.dto.response.DtoProfileResponse;
 import com.ogulcanonder.investment_tracking_app.entity.User;
 import com.ogulcanonder.investment_tracking_app.event.PasswordChangeEvent;
 import com.ogulcanonder.investment_tracking_app.exception.PasswordMismatchException;
 import com.ogulcanonder.investment_tracking_app.exception.ResourceNotFoundException;
+import com.ogulcanonder.investment_tracking_app.mapper.UserMapper;
 import com.ogulcanonder.investment_tracking_app.repository.UserRepository;
 import com.ogulcanonder.investment_tracking_app.service.CurrentUserProvider;
 import com.ogulcanonder.investment_tracking_app.service.UserService;
@@ -24,14 +26,16 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final CurrentUserProvider currentUserProvider;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final UserMapper userMapper;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
                            CurrentUserProvider currentUserProvider,
-                           ApplicationEventPublisher applicationEventPublisher) {
+                           ApplicationEventPublisher applicationEventPublisher, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.currentUserProvider = currentUserProvider;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.userMapper = userMapper;
     }
 
 
@@ -85,5 +89,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getCurrentUser() {
         return userRepository.getReferenceById(currentUserProvider.getCurrentUserId());
+    }
+
+    @Override
+    public DtoProfileResponse getUserProfile() {
+        return userMapper.toDto(getCurrentUser());
     }
 }

@@ -6,6 +6,7 @@ import com.ogulcanonder.investment_tracking_app.dto.request.DtoRegisterUserReque
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoResetPasswordRequest;
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoUpdatePasswordRequest;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoAuthLoginResponse;
+import com.ogulcanonder.investment_tracking_app.dto.response.DtoProfileResponse;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoRefreshTokenResponse;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoUserResponse;
 import com.ogulcanonder.investment_tracking_app.service.AuthenticationService;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
@@ -75,5 +77,10 @@ public class AuthenticationController {
             @Valid @RequestBody DtoUpdatePasswordRequest dtoUpdatePasswordRequest) {
         userService.updatePassword(userDetails.getUsername(), dtoUpdatePasswordRequest);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<DtoProfileResponse>getProfile(){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserProfile());
     }
 }

@@ -2,7 +2,6 @@ package com.ogulcanonder.investment_tracking_app.service;
 
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoUpdatePasswordRequest;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoProfileResponse;
-import com.ogulcanonder.investment_tracking_app.dto.response.DtoUserResponse;
 import com.ogulcanonder.investment_tracking_app.entity.User;
 
 import java.util.Optional;

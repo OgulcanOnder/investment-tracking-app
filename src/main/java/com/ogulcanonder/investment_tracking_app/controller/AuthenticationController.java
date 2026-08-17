@@ -74,13 +74,13 @@ public class AuthenticationController {
 
     @PutMapping("/update-password")
     public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody DtoUpdatePasswordRequest dtoUpdatePasswordRequest) {
+                                               @Valid @RequestBody DtoUpdatePasswordRequest dtoUpdatePasswordRequest) {
         userService.updatePassword(userDetails.getUsername(), dtoUpdatePasswordRequest);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<DtoProfileResponse>getProfile(){
+    public ResponseEntity<DtoProfileResponse> getProfile() {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserProfile());
     }
 }

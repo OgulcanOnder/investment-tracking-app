@@ -7,6 +7,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(target = "username",expression =" java(user.getRealUsername())")
+    @Mapping(target = "username", expression = " java(user.getRealUsername())")
     DtoProfileResponse toDto(User user);
 }

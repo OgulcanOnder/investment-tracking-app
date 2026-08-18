@@ -117,4 +117,10 @@ public class JwtServiceImpl implements JwtService {
     public void revokeRefreshToken(String email) {
         refreshTokenRepository.deleteRefreshTokenByEmail(email);
     }
+
+    @Override
+    @Transactional
+    public void deleteExpiredRefreshTokens() {
+        refreshTokenRepository.deleteAllByExpirationTimeBefore(LocalDateTime.now());
+    }
 }

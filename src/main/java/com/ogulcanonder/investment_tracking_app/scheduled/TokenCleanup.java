@@ -19,7 +19,7 @@ public class TokenCleanup {
         this.passwordResetTokenService = passwordResetTokenService;
     }
 
-    @Scheduled(cron = "0 35 15 * * *", zone = "Europe/Istanbul")
+    @Scheduled(cron = "0 00 5 * * *", zone = "Europe/Istanbul")
     @Transactional
     public void clearExpiredTokens() {
         jwtService.deleteExpiredRefreshTokens();

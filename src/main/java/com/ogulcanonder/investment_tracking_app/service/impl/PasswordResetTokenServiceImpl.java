@@ -96,4 +96,10 @@ public class PasswordResetTokenServiceImpl implements PasswordResetTokenService 
         applicationEventPublisher.publishEvent(new PasswordChangeEvent(token.getUser().getEmail()));
     }
 
+    @Override
+    @Transactional
+    public void deleteExpiredTokens() {
+        passwordResetTokenRepository.deleteAllByExpiresAtBefore(LocalDateTime.now());
+    }
+
 }

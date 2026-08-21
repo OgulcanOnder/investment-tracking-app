@@ -12,6 +12,7 @@ import com.ogulcanonder.investment_tracking_app.service.InstrumentsService;
 import com.ogulcanonder.investment_tracking_app.service.InvestmentService;
 import com.ogulcanonder.investment_tracking_app.service.CurrentUserProvider;
 import com.ogulcanonder.investment_tracking_app.service.UserService;
+import com.ogulcanonder.investment_tracking_app.service.InstrumentPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class InvestmentServiceImpl implements InvestmentService {
     private final InvestmentRepository investmentRepository;
     private final InvestmentMapper investmentMapper;
     private final InstrumentsService instrumentsService;
+    private final InstrumentPriceService instrumentPriceService;
     private final CurrentUserProvider currentUserProvider;
     private final UserService userService;
 
@@ -66,7 +68,7 @@ public class InvestmentServiceImpl implements InvestmentService {
                 .multiply(inv.getBuyPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal averageCost = weightedSum.divide(totalQuantity, FINANCIAL_CALCULATION_SCALE, RoundingMode.HALF_UP);
-        BigDecimal currentPrice = instrumentsService.apiSymbolMatching(instruments.getApiSymbol());
+        BigDecimal currentPrice = instrumentPriceService.getPrice(instruments.getApiSymbol());
         BigDecimal profitLoss = investments.stream().map(inv -> {
             BigDecimal cost = inv.getBuyPrice().multiply(inv.getQuantity());
             BigDecimal current = currentPrice.multiply(inv.getQuantity());

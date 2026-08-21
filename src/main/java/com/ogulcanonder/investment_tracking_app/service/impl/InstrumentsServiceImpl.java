@@ -6,9 +6,8 @@ import com.ogulcanonder.investment_tracking_app.entity.Instruments;
 import com.ogulcanonder.investment_tracking_app.exception.ResourceNotFoundException;
 import com.ogulcanonder.investment_tracking_app.mapper.InstrumentsMapper;
 import com.ogulcanonder.investment_tracking_app.repository.InstrumentsRepository;
-import com.ogulcanonder.investment_tracking_app.service.PreciousMetalCalculationService;
+import com.ogulcanonder.investment_tracking_app.service.InstrumentPriceService;
 import com.ogulcanonder.investment_tracking_app.service.InstrumentsService;
-import com.ogulcanonder.investment_tracking_app.service.MarketDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -24,8 +23,7 @@ public class InstrumentsServiceImpl implements InstrumentsService {
 
     private final InstrumentsRepository instrumentsRepository;
     private final InstrumentsMapper instrumentsMapper;
-    private final MarketDataService marketDataService;
-    private final PreciousMetalCalculationService preciousMetalCalculationService;
+    private final InstrumentPriceService instrumentPriceService;
 
     @Override
     @Transactional
@@ -45,7 +43,7 @@ public class InstrumentsServiceImpl implements InstrumentsService {
     public List<DtoInstrumentsResponse> getAll() {
         return instrumentsRepository.findAll().stream()
                 .map(inst -> {
-                    BigDecimal price = apiSymbolMatching(inst.getApiSymbol());
+                    BigDecimal price = instrumentPriceService.getPrice(inst.getApiSymbol());
                     return instrumentsMapper.toDto(inst, price);
                 })
                 .toList();
@@ -55,31 +53,8 @@ public class InstrumentsServiceImpl implements InstrumentsService {
     public DtoInstrumentsResponse getInstrumentsById(Long id) {
         Instruments instruments = instrumentsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Not Found Instruments"));
-        BigDecimal price = apiSymbolMatching(instruments.getApiSymbol());
+        BigDecimal price = instrumentPriceService.getPrice(instruments.getApiSymbol());
         return instrumentsMapper.toDto(instruments, price);
-    }
-
-    @Override
-    public BigDecimal apiSymbolMatching(String apiSymbol) {
-        BigDecimal price;
-        switch (apiSymbol) {
-            case "GRAM_ALTIN":
-                price = preciousMetalCalculationService.gramGoldGetPrice();
-                break;
-
-            case "CEYREK_ALTIN":
-                price = preciousMetalCalculationService.quarterGoldGetPrice();
-                break;
-            case "TAM_ALTIN":
-                price = preciousMetalCalculationService.fullGoldGetPrice();
-                break;
-            case "GRAM_GUMUS":
-                price = preciousMetalCalculationService.gramSilverGetPrice();
-                break;
-            default:
-                price = marketDataService.getPrice(apiSymbol);
-        }
-        return price;
     }
 
     @Override

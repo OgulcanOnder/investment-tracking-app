@@ -48,6 +48,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/register").permitAll()
                 .requestMatchers("/api/v1/auth/login").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/v1/auth/refresh").permitAll());
         http.sessionManagement(sessionManagement -> sessionManagement.
                 sessionCreationPolicy(SessionCreationPolicy.STATELESS));

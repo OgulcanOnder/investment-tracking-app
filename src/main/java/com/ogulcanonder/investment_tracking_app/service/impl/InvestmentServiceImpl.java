@@ -89,14 +89,19 @@ public class InvestmentServiceImpl implements InvestmentService {
     @Override
     @Transactional
     public void updateById(Long id, DtoInvestmentRequest dtoInvestmentRequest) {
-        investmentRepository.updateById(id, dtoInvestmentRequest.instrumentsId(),
-                dtoInvestmentRequest.quantity(), dtoInvestmentRequest.buyPrice());
+        Long userId = currentUserProvider.getCurrentUserId();
+        int updateRows = investmentRepository.updateById(id, dtoInvestmentRequest.instrumentsId(),
+                dtoInvestmentRequest.quantity(), dtoInvestmentRequest.buyPrice(), userId);
+        if (updateRows == 0) {
+            throw new ResourceNotFoundException("Not Found Investment");
+        }
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        int deletedRows = investmentRepository.deleteInvestmentSummary(id);
+        Long userId = currentUserProvider.getCurrentUserId();
+        int deletedRows = investmentRepository.deleteInvestmentSummary(id, userId);
         if (deletedRows == 0) {
             throw new ResourceNotFoundException("Not Found Investment");
         }

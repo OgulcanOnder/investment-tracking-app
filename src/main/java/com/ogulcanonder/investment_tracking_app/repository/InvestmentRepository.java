@@ -15,14 +15,14 @@ import java.util.List;
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
     @Modifying
     @Transactional
-    @Query("UPDATE Investment i SET i.instruments.id=?2, i.quantity=?3, i.buyPrice=?4 WHERE i.id=?1")
-    void updateById(Long id, Long instrumentsId, BigDecimal quantity, BigDecimal buyPrice);
+    @Query("UPDATE Investment i SET i.instruments.id=?2, i.quantity=?3, i.buyPrice=?4 WHERE i.id=?1 AND i.user.id=?5")
+    int updateById(Long id, Long instrumentsId, BigDecimal quantity, BigDecimal buyPrice, Long userId);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Investment i WHERE i.id=:id")
-    int deleteInvestmentSummary(Long id);
+    @Query("DELETE FROM Investment i WHERE i.id=:id AND i.user.id=:userId")
+    int deleteInvestmentSummary(@Param("id") Long id, @Param("userId") Long userId);
 
     @Query("SELECT i FROM Investment i JOIN FETCH i.instruments WHERE i.user.id=:userId")
-    List<Investment>findByUserIdWithInstruments(@Param("userId") Long userId);
+    List<Investment> findByUserIdWithInstruments(@Param("userId") Long userId);
 }

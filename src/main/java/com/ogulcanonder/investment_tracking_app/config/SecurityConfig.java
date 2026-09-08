@@ -1,9 +1,11 @@
 package com.ogulcanonder.investment_tracking_app.config;
 
+import com.ogulcanonder.investment_tracking_app.roles.Role;
 import com.ogulcanonder.investment_tracking_app.security.JwtAuthFilter;
 import com.ogulcanonder.investment_tracking_app.service.impl.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -43,9 +45,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/update-password").authenticated()
                 .requestMatchers("/api/v1/auth/profile").authenticated()
                 .requestMatchers("/api/v1/debts/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/v1/instruments")
+                .hasAnyAuthority(Role.ROLE_ADMIN.name())
+                .requestMatchers(HttpMethod.PUT, "/api/v1/instruments")
+                .hasAnyAuthority(Role.ROLE_ADMIN.name())
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/instruments")
+                .hasAnyAuthority(Role.ROLE_ADMIN.name())
                 .requestMatchers("/api/v1/auth/forgot-password").permitAll()
                 .requestMatchers("/api/v1/auth/reset-password").permitAll()
-                .requestMatchers("/api/v1/instruments").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/instruments/**").permitAll()
                 .requestMatchers("/api/v1/auth/register").permitAll()
                 .requestMatchers("/api/v1/auth/login").permitAll()
                 .requestMatchers("/uploads/**").permitAll()

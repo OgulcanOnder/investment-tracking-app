@@ -5,6 +5,7 @@ import com.ogulcanonder.investment_tracking_app.dto.response.DtoInvestmentRespon
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoInvestmentSummaryResponse;
 import com.ogulcanonder.investment_tracking_app.entity.Investment;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface InvestmentService {
@@ -13,4 +14,5 @@ public interface InvestmentService {
     DtoInvestmentSummaryResponse buildSummary(List<Investment> investments);
     void updateById(Long id, DtoInvestmentRequest dtoInvestmentRequest);
     void deleteById(Long id);
+    BigDecimal totalInvestmentAssets();
 }

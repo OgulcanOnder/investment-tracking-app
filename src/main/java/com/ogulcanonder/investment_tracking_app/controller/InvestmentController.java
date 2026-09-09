@@ -3,7 +3,6 @@ package com.ogulcanonder.investment_tracking_app.controller;
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoInvestmentRequest;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoInvestmentResponse;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoInvestmentSummaryResponse;
-import com.ogulcanonder.investment_tracking_app.service.AssetDetails;
 import com.ogulcanonder.investment_tracking_app.service.InvestmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InvestmentController {
     private final InvestmentService investmentService;
-    private final AssetDetails assetDetails;
 
     @PostMapping
     public ResponseEntity<DtoInvestmentResponse> addInvestment(
@@ -56,7 +54,6 @@ public class InvestmentController {
 
     @GetMapping("/totalassets")
     public ResponseEntity<BigDecimal> getTotalAssets() {
-        BigDecimal totalAssets = assetDetails.totalAsset();
-        return ResponseEntity.status(HttpStatus.OK).body(totalAssets);
+        return ResponseEntity.status(HttpStatus.OK).body(investmentService.totalInvestmentAssets());
     }
 }

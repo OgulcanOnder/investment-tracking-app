@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/update-password").authenticated()
                 .requestMatchers("/api/v1/auth/profile").authenticated()
                 .requestMatchers("/api/v1/debts/**").authenticated()
+                .requestMatchers("/api/v1/summary/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/v1/instruments")
                 .hasAnyAuthority(Role.ROLE_ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/instruments")

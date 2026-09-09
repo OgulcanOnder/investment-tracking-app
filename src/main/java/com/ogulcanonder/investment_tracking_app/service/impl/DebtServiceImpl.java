@@ -11,6 +11,7 @@ import com.ogulcanonder.investment_tracking_app.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -66,5 +67,11 @@ public class DebtServiceImpl implements DebtService {
         if (updateRows == 0) {
             throw new ResourceNotFoundException("Not found debt");
         }
+    }
+
+    @Override
+    public BigDecimal totalDebt() {
+        return getAll().stream().map(DtoDebtResponse::amount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

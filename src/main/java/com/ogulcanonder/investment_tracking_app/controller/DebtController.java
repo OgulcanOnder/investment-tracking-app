@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/debts")
+@RequestMapping("/api/v1/debts")
 public class DebtController {
     private final DebtService debtService;
 
@@ -47,5 +48,10 @@ public class DebtController {
                                                @Valid @RequestBody DtoDebtRequest dtoDebtRequest) {
         debtService.updateById(id, dtoDebtRequest);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/totaldebts")
+    public ResponseEntity<BigDecimal> getTotalDebt() {
+        return ResponseEntity.status(HttpStatus.OK).body(debtService.totalDebt());
     }
 }

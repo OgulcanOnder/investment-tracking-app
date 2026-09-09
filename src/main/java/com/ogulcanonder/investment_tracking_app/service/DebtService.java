@@ -3,6 +3,7 @@ package com.ogulcanonder.investment_tracking_app.service;
 import com.ogulcanonder.investment_tracking_app.dto.request.DtoDebtRequest;
 import com.ogulcanonder.investment_tracking_app.dto.response.DtoDebtResponse;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface DebtService {
@@ -13,4 +14,6 @@ public interface DebtService {
     public void deleteById(Long id);
 
     public void updateById(Long id, DtoDebtRequest dtoDebtRequest);
+
+    public BigDecimal totalDebt();
 }

@@ -52,8 +52,8 @@ public class InvestmentServiceImpl implements InvestmentService {
         Long userId = currentUserProvider.getCurrentUserId();
         return investmentRepository.findByUserIdWithInstruments(userId).stream()
                 .collect(Collectors.groupingBy(inv ->
-                inv.getInstruments().getId())).entrySet().stream().map(entry ->
-                buildSummary(entry.getValue())).toList();
+                        inv.getInstruments().getId())).entrySet().stream().map(entry ->
+                        buildSummary(entry.getValue())).toList();
     }
 
     @Override
@@ -105,6 +105,12 @@ public class InvestmentServiceImpl implements InvestmentService {
         if (deletedRows == 0) {
             throw new ResourceNotFoundException("Not Found Investment");
         }
+    }
+
+    @Override
+    public BigDecimal totalInvestmentAssets() {
+        return getInvestmentSummary().stream().map(DtoInvestmentSummaryResponse::totalValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
 }

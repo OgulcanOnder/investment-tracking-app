@@ -46,14 +46,20 @@ public class InvestmentController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteInvestmentSummary(@PathVariable Long id) {
-        investmentService.deleteById(id);
+    @DeleteMapping("/{instrumentsId}")
+    public ResponseEntity<Void> deleteInvestmentSummary(@PathVariable Long instrumentsId) {
+        investmentService.deleteByInstrumentsId(instrumentsId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/totalassets")
     public ResponseEntity<BigDecimal> getTotalAssets() {
         return ResponseEntity.status(HttpStatus.OK).body(investmentService.totalInvestmentAssets());
+    }
+
+    @GetMapping("/latest-investment/{instrumentsId}")
+    public ResponseEntity<DtoInvestmentResponse> getLatestInvestmentByInstrumentsId(@PathVariable Long instrumentsId) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                investmentService.getLatestInvestmentByInstrumentsId(instrumentsId));
     }
 }

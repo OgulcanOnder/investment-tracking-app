@@ -8,6 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 
 public interface InvestmentMapper {
@@ -17,5 +18,7 @@ public interface InvestmentMapper {
     Investment toEntity(DtoInvestmentRequest dtoInvestmentRequest, Instruments instruments);
 
     // Entity → Response
+
+    @Mapping(source = "user.id", target = "userId")
     DtoInvestmentResponse toDto(Investment investment);
 }

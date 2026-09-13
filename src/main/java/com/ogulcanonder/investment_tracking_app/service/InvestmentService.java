@@ -13,6 +13,7 @@ public interface InvestmentService {
     List<DtoInvestmentSummaryResponse> getInvestmentSummary();
     DtoInvestmentSummaryResponse buildSummary(List<Investment> investments);
     void updateById(Long id, DtoInvestmentRequest dtoInvestmentRequest);
-    void deleteById(Long id);
+    void deleteByInstrumentsId(Long instrumentId);
     BigDecimal totalInvestmentAssets();
+    DtoInvestmentResponse getLatestInvestmentByInstrumentsId(Long instrumentId);
 }

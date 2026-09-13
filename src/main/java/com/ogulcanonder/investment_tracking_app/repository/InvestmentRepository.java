@@ -20,9 +20,11 @@ public interface InvestmentRepository extends JpaRepository<Investment, Long> {
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Investment i WHERE i.id=:id AND i.user.id=:userId")
-    int deleteInvestmentSummary(@Param("id") Long id, @Param("userId") Long userId);
+    @Query("DELETE FROM Investment i WHERE i.instruments.id=:instrumentId AND i.user.id=:userId")
+    int deleteInvestmentSummary(@Param("instrumentId") Long instrumentId, @Param("userId") Long userId);
 
     @Query("SELECT i FROM Investment i JOIN FETCH i.instruments WHERE i.user.id=:userId")
     List<Investment> findByUserIdWithInstruments(@Param("userId") Long userId);
+
+    List<Investment> findByUserIdAndInstrumentsId(Long userId, Long instrumentsId);
 }

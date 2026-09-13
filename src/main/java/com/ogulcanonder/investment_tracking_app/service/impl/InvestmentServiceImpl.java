@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -99,9 +100,9 @@ public class InvestmentServiceImpl implements InvestmentService {
 
     @Override
     @Transactional
-    public void deleteById(Long id) {
+    public void deleteByInstrumentsId(Long instrumentId) {
         Long userId = currentUserProvider.getCurrentUserId();
-        int deletedRows = investmentRepository.deleteInvestmentSummary(id, userId);
+        int deletedRows = investmentRepository.deleteInvestmentSummary(instrumentId, userId);
         if (deletedRows == 0) {
             throw new ResourceNotFoundException("Not Found Investment");
         }
@@ -111,6 +112,15 @@ public class InvestmentServiceImpl implements InvestmentService {
     public BigDecimal totalInvestmentAssets() {
         return getInvestmentSummary().stream().map(DtoInvestmentSummaryResponse::totalValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public DtoInvestmentResponse getLatestInvestmentByInstrumentsId(Long instrumentId) {
+        Long userId = currentUserProvider.getCurrentUserId();
+        return investmentRepository.findByUserIdAndInstrumentsId(userId, instrumentId).stream()
+                .map(investmentMapper::toDto)
+                .max(Comparator.comparing(DtoInvestmentResponse::buyDate))
+                .orElseThrow(() -> new ResourceNotFoundException("Not Found Investment"));
     }
 
 }

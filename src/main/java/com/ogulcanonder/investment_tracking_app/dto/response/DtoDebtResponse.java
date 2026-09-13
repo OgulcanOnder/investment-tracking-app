@@ -5,6 +5,7 @@ import com.ogulcanonder.investment_tracking_app.enums.DebtType;
 import java.math.BigDecimal;
 
 public record DtoDebtResponse(
+        Long id,
         DebtType debtType,
         String description,
         BigDecimal amount

@@ -117,7 +117,8 @@ public class InvestmentServiceImpl implements InvestmentService {
     @Override
     public DtoInvestmentResponse getLatestInvestmentByInstrumentsId(Long instrumentId) {
         Long userId = currentUserProvider.getCurrentUserId();
-        return investmentRepository.findByUserIdAndInstrumentsId(userId,instrumentId).stream().map(investmentMapper::toDto)
+        return investmentRepository.findByUserIdAndInstrumentsId(userId, instrumentId).stream()
+                .map(investmentMapper::toDto)
                 .max(Comparator.comparing(DtoInvestmentResponse::buyDate))
                 .orElseThrow(() -> new ResourceNotFoundException("Not Found Investment"));
     }

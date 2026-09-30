@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-@Table(name = "invesment",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"instrument_id"})
+@Table(name = "investment",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"instruments_id"})
         })
 @Entity
 @Data

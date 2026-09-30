@@ -33,8 +33,8 @@ public class RefreshTokenRepositoryTest {
                 .build();
         testEntityManager.persistAndFlush(refreshToken);
         refreshTokenRepository.deleteRefreshTokenByEmail(email);
-        assertThat(testEntityManager.find(RefreshToken.class, refreshToken.getId())).isNull();
         testEntityManager.clear();
+        assertThat(testEntityManager.find(RefreshToken.class, refreshToken.getId())).isNull();
     }
 
     @DisplayName("should delete refresh token with email when deleted refresh token")

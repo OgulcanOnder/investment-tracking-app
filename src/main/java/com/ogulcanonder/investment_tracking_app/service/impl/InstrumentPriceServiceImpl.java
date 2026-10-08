@@ -6,12 +6,10 @@ import com.ogulcanonder.investment_tracking_app.service.MarketDataService;
 import com.ogulcanonder.investment_tracking_app.service.PreciousMetalCalculationService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
 @Service
-@Transactional(readOnly = true)
 public class InstrumentPriceServiceImpl implements InstrumentPriceService {
 
     private final PreciousMetalCalculationService preciousMetalCalculationService;

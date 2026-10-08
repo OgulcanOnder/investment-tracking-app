@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -41,11 +42,16 @@ public class InstrumentsServiceImpl implements InstrumentsService {
 
     @Override
     public List<DtoInstrumentsResponse> getAll() {
-        return instrumentsRepository.findAll().stream()
-                .map(inst -> {
-                    BigDecimal price = instrumentPriceService.getPrice(inst.getApiSymbol());
-                    return instrumentsMapper.toDto(inst, price);
-                })
+        List<Instruments> instrumentsList = instrumentsRepository.findAll();
+        List<CompletableFuture<DtoInstrumentsResponse>> futures = instrumentsList.stream()
+                .map(instrument -> CompletableFuture.supplyAsync(() -> {
+                    BigDecimal price = instrumentPriceService.getPrice(instrument.getApiSymbol());
+                    return instrumentsMapper.toDto(instrument, price);
+                }))
+                .toList();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        return futures.stream()
+                .map(CompletableFuture::join)
                 .toList();
     }
 

@@ -28,17 +28,18 @@ public class YahooFinanceService implements MarketDataService {
                 .header("User-Agent", "Mozilla/5.0")
                 .build();
 
-        try {
-            HttpResponse<String> response = httpClient.send(
-                    request,
-                    HttpResponse.BodyHandlers.ofString()
-            );
+        return httpClient
+                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(response -> {
+                    try {
+                        return extractPrice(response.body());
+                    } catch (Exception e) {
+                        throw new RuntimeException("Yahoo Finance request failed", e);
+                    }
+                })
+                .join();
 
-            return extractPrice(response.body());
 
-        } catch (Exception e) {
-            throw new RuntimeException("Yahoo Finance request failed", e);
-        }
     }
 
     private BigDecimal extractPrice(String json) throws Exception {
